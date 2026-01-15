@@ -1,0 +1,2163 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>BTC Pref Flywheel — Leverage Runway Model</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600;700&family=IBM+Plex+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg-primary: #0d1117;
+            --bg-secondary: #161b22;
+            --bg-tertiary: #21262d;
+            --bg-highlight: #30363d;
+            --text-primary: #e6edf3;
+            --text-secondary: #8b949e;
+            --text-muted: #6e7681;
+            --accent-btc: #f7931a;
+            --accent-green: #3fb950;
+            --accent-yellow: #d29922;
+            --accent-red: #f85149;
+            --accent-purple: #a371f7;
+            --accent-blue: #58a6ff;
+            --border: #30363d;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'IBM Plex Sans', sans-serif;
+            background: var(--bg-primary);
+            color: var(--text-primary);
+            min-height: 100vh;
+            line-height: 1.5;
+        }
+
+        .container {
+            max-width: 1600px;
+            margin: 0 auto;
+            padding: 2rem;
+        }
+
+        header {
+            margin-bottom: 2rem;
+            padding-bottom: 1.5rem;
+            border-bottom: 1px solid var(--border);
+        }
+
+        h1 {
+            font-size: 1.75rem;
+            font-weight: 600;
+            margin-bottom: 0.5rem;
+            color: var(--accent-btc);
+        }
+
+        .subtitle {
+            color: var(--text-secondary);
+            font-size: 0.95rem;
+        }
+
+        .main-layout {
+            display: grid;
+            grid-template-columns: 400px 1fr;
+            gap: 2rem;
+        }
+
+        .panel {
+            background: var(--bg-secondary);
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            padding: 1.5rem;
+        }
+
+        .panel-header {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            margin-bottom: 1.5rem;
+            padding-bottom: 1rem;
+            border-bottom: 1px solid var(--border);
+        }
+
+        .panel-icon {
+            font-size: 1.25rem;
+        }
+
+        .panel-title {
+            font-size: 0.875rem;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            color: var(--text-secondary);
+        }
+
+        .section {
+            margin-bottom: 2rem;
+        }
+
+        .section:last-child {
+            margin-bottom: 0;
+        }
+
+        .section-title {
+            font-size: 0.75rem;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.1em;
+            color: var(--text-muted);
+            margin-bottom: 1rem;
+        }
+
+        .input-group {
+            margin-bottom: 1.25rem;
+        }
+
+        .input-group:last-child {
+            margin-bottom: 0;
+        }
+
+        .input-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: baseline;
+            margin-bottom: 0.25rem;
+        }
+
+        .input-label {
+            font-size: 0.9rem;
+            font-weight: 500;
+            color: var(--text-primary);
+        }
+
+        .input-value {
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 0.9rem;
+            font-weight: 600;
+            color: var(--accent-btc);
+        }
+
+        .input-description {
+            font-size: 0.75rem;
+            color: var(--text-muted);
+            margin-bottom: 0.5rem;
+            line-height: 1.4;
+        }
+
+        .input-formula {
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 0.7rem;
+            color: var(--accent-purple);
+            background: var(--bg-tertiary);
+            padding: 0.25rem 0.5rem;
+            border-radius: 4px;
+            display: inline-block;
+            margin-bottom: 0.5rem;
+        }
+
+        input[type="range"] {
+            width: 100%;
+            height: 6px;
+            -webkit-appearance: none;
+            appearance: none;
+            background: var(--bg-tertiary);
+            border-radius: 3px;
+            outline: none;
+            cursor: pointer;
+        }
+
+        input[type="range"]::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            width: 16px;
+            height: 16px;
+            background: var(--accent-btc);
+            border-radius: 50%;
+            cursor: pointer;
+            box-shadow: 0 2px 6px rgba(247, 147, 26, 0.3);
+        }
+
+        .debt-checkboxes {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 0.5rem;
+            margin-top: 0.5rem;
+        }
+
+        .debt-checkbox {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            font-size: 0.75rem;
+            color: var(--text-secondary);
+            cursor: pointer;
+            padding: 0.35rem 0.5rem;
+            background: var(--bg-tertiary);
+            border-radius: 4px;
+            transition: background 0.15s ease;
+        }
+
+        .debt-checkbox:hover {
+            background: var(--bg-highlight);
+        }
+
+        .debt-checkbox input[type="checkbox"] {
+            accent-color: var(--accent-btc);
+            width: 14px;
+            height: 14px;
+            cursor: pointer;
+        }
+
+        .divider {
+            height: 1px;
+            background: var(--border);
+            margin: 1.5rem 0;
+        }
+
+        .output-panel {
+            display: flex;
+            flex-direction: column;
+            gap: 1.5rem;
+        }
+
+        .regime-indicator {
+            padding: 1rem;
+            border-radius: 8px;
+            border: 2px solid;
+        }
+
+        .regime-indicator.open {
+            background: rgba(63, 185, 80, 0.1);
+            border-color: var(--accent-green);
+        }
+
+        .regime-indicator.closed {
+            background: rgba(248, 81, 73, 0.1);
+            border-color: var(--accent-red);
+        }
+
+        .regime-title {
+            font-size: 0.875rem;
+            font-weight: 600;
+            margin-bottom: 0.25rem;
+        }
+
+        .regime-indicator.open .regime-title {
+            color: var(--accent-green);
+        }
+
+        .regime-indicator.closed .regime-title {
+            color: var(--accent-red);
+        }
+
+        .regime-description {
+            font-size: 0.8rem;
+            color: var(--text-secondary);
+        }
+
+        .runway-viz {
+            background: var(--bg-tertiary);
+            border-radius: 8px;
+            padding: 1.5rem;
+        }
+
+        .runway-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1rem;
+        }
+
+        .runway-title {
+            font-size: 0.875rem;
+            font-weight: 600;
+            color: var(--text-primary);
+        }
+
+        .runway-value {
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 1.5rem;
+            font-weight: 700;
+        }
+
+        .runway-track {
+            height: 24px;
+            background: var(--bg-highlight);
+            border-radius: 12px;
+            position: relative;
+            overflow: hidden;
+            margin-bottom: 0.75rem;
+        }
+
+        .runway-fill {
+            height: 100%;
+            border-radius: 12px;
+            transition: width 0.3s ease, background 0.3s ease;
+        }
+
+        .runway-markers {
+            display: flex;
+            justify-content: space-between;
+            font-size: 0.7rem;
+            color: var(--text-muted);
+            font-family: 'JetBrains Mono', monospace;
+        }
+
+        .metric-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 1rem;
+        }
+
+        .metric-card {
+            background: var(--bg-tertiary);
+            border-radius: 8px;
+            padding: 1rem;
+        }
+
+        .metric-label {
+            font-size: 0.7rem;
+            color: var(--text-muted);
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            margin-bottom: 0.25rem;
+        }
+
+        .metric-name {
+            font-size: 0.8rem;
+            color: var(--text-secondary);
+            margin-bottom: 0.5rem;
+        }
+
+        .metric-value {
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 1.25rem;
+            font-weight: 600;
+        }
+
+        .metric-value.positive { color: var(--accent-green); }
+        .metric-value.negative { color: var(--accent-red); }
+        .metric-value.warning { color: var(--accent-yellow); }
+        .metric-value.neutral { color: var(--text-primary); }
+
+        .metric-unit {
+            font-size: 0.75rem;
+            color: var(--text-muted);
+            margin-left: 0.25rem;
+        }
+
+        .explanation-box {
+            background: var(--bg-tertiary);
+            border-radius: 8px;
+            padding: 1rem;
+            border-left: 3px solid var(--accent-blue);
+        }
+
+        .explanation-title {
+            font-size: 0.8rem;
+            font-weight: 600;
+            color: var(--accent-blue);
+            margin-bottom: 0.5rem;
+        }
+
+        .explanation-text {
+            font-size: 0.8rem;
+            color: var(--text-secondary);
+            line-height: 1.5;
+        }
+
+        .formula-display {
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 0.75rem;
+            background: var(--bg-primary);
+            padding: 0.5rem 0.75rem;
+            border-radius: 4px;
+            margin-top: 0.5rem;
+            color: var(--accent-purple);
+        }
+
+        .comparison-table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 0.8rem;
+        }
+
+        .comparison-table th,
+        .comparison-table td {
+            padding: 0.75rem;
+            text-align: left;
+            border-bottom: 1px solid var(--border);
+        }
+
+        .comparison-table th {
+            color: var(--text-muted);
+            font-weight: 500;
+            font-size: 0.7rem;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+        }
+
+        .comparison-table td {
+            font-family: 'JetBrains Mono', monospace;
+        }
+
+        .status-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.25rem;
+            padding: 0.25rem 0.5rem;
+            border-radius: 4px;
+            font-size: 0.7rem;
+            font-weight: 600;
+        }
+
+        .status-badge.pass {
+            background: rgba(63, 185, 80, 0.15);
+            color: var(--accent-green);
+        }
+
+        .status-badge.fail {
+            background: rgba(248, 81, 73, 0.15);
+            color: var(--accent-red);
+        }
+
+        .status-badge.warn {
+            background: rgba(210, 153, 34, 0.15);
+            color: var(--accent-yellow);
+        }
+
+        .scenario-cards {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 1rem;
+        }
+
+        .scenario-card {
+            background: var(--bg-tertiary);
+            border-radius: 8px;
+            padding: 1rem;
+            border: 1px solid var(--border);
+        }
+
+        .scenario-title {
+            font-size: 0.75rem;
+            font-weight: 600;
+            color: var(--text-muted);
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            margin-bottom: 0.75rem;
+        }
+
+        .scenario-condition {
+            font-size: 0.7rem;
+            color: var(--text-muted);
+            margin-bottom: 0.5rem;
+        }
+
+        .scenario-result {
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 1rem;
+            font-weight: 600;
+        }
+
+        .scenario-detail {
+            font-size: 0.75rem;
+            color: var(--text-secondary);
+            margin-top: 0.5rem;
+        }
+
+        @media (max-width: 1200px) {
+            .main-layout {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        /* Story Container */
+        .story-container {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 1.5rem;
+            margin-bottom: 2rem;
+        }
+
+        .story-section {
+            background: var(--bg-secondary);
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            padding: 1.5rem;
+        }
+
+        .story-header {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            font-size: 0.75rem;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.1em;
+            color: var(--text-muted);
+            margin-bottom: 1rem;
+            padding-bottom: 0.75rem;
+            border-bottom: 1px solid var(--border);
+        }
+
+        .story-live {
+            grid-column: 1 / -1;
+            border-color: var(--accent-btc);
+            background: linear-gradient(135deg, var(--bg-secondary) 0%, #1a1f26 100%);
+        }
+
+        .story-live .story-header {
+            color: var(--accent-btc);
+        }
+
+        .story-grid {
+            display: grid;
+            grid-template-columns: repeat(7, 1fr);
+            gap: 0.75rem;
+        }
+
+        .story-stat {
+            text-align: center;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding: 0.5rem 0.25rem;
+        }
+
+        .story-stat.highlight {
+            background: rgba(247, 147, 26, 0.15);
+            border-radius: 8px;
+            border: 1px solid var(--accent-btc);
+        }
+
+        .stat-value {
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 1.1rem;
+            font-weight: 700;
+            color: var(--text-primary);
+        }
+
+        .story-stat.highlight .stat-value {
+            color: var(--accent-btc);
+        }
+
+        .stat-label {
+            font-size: 0.65rem;
+            color: var(--text-muted);
+            text-transform: uppercase;
+            letter-spacing: 0.03em;
+            margin-top: 0.25rem;
+        }
+
+        .live-indicator {
+            font-size: 0.75rem;
+            animation: pulse 2s infinite;
+        }
+
+        .live-indicator.connected { color: var(--accent-green); }
+
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.5; }
+        }
+
+        .fetch-btn {
+            margin-left: auto;
+            background: var(--bg-tertiary);
+            border: 1px solid var(--border);
+            color: var(--text-primary);
+            padding: 0.35rem 0.75rem;
+            border-radius: 6px;
+            font-size: 0.75rem;
+            cursor: pointer;
+        }
+
+        .fetch-btn:hover { background: var(--bg-highlight); border-color: var(--accent-btc); }
+
+        .live-timestamp {
+            font-size: 0.7rem;
+            color: var(--text-muted);
+            text-align: center;
+            margin-top: 1rem;
+        }
+
+        /* Mad Libs */
+        .story-madlibs {
+            grid-column: 1 / 2;
+        }
+
+        .madlib-container {
+            display: flex;
+            flex-direction: column;
+            gap: 1.25rem;
+        }
+
+        .madlib-text {
+            font-size: 1.1rem;
+            color: var(--text-secondary);
+            line-height: 2;
+        }
+
+        .madlib-input {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.75rem;
+            background: var(--bg-primary);
+            padding: 0.5rem 1rem;
+            border-radius: 8px;
+            margin: 0 0.5rem;
+            border: 2px solid var(--accent-btc);
+            box-shadow: 0 0 12px rgba(247, 147, 26, 0.2);
+        }
+
+        .madlib-input:hover {
+            border-color: var(--accent-btc);
+            box-shadow: 0 0 16px rgba(247, 147, 26, 0.35);
+        }
+
+        .madlib-input input[type="range"] {
+            width: 100px;
+            height: 6px;
+            cursor: pointer;
+            accent-color: var(--accent-btc);
+        }
+
+        .madlib-input input[type="range"]::-webkit-slider-thumb {
+            width: 18px;
+            height: 18px;
+            cursor: grab;
+        }
+
+        .madlib-input input[type="range"]::-webkit-slider-thumb:active {
+            cursor: grabbing;
+        }
+
+        .madlib-value {
+            font-family: 'JetBrains Mono', monospace;
+            font-weight: 700;
+            font-size: 1.1rem;
+            color: var(--accent-btc);
+            min-width: 3.5rem;
+            text-align: right;
+        }
+
+        .madlib-note {
+            font-size: 0.75rem;
+            color: var(--text-muted);
+            font-style: italic;
+        }
+
+        .ath-callout {
+            background: rgba(247, 147, 26, 0.1);
+            border: 1px solid rgba(247, 147, 26, 0.3);
+            border-radius: 6px;
+            padding: 0.6rem 1rem;
+            font-size: 0.85rem;
+            color: var(--text-secondary);
+            margin: 0.5rem 0;
+        }
+
+        .ath-callout span {
+            font-family: 'JetBrains Mono', monospace;
+            font-weight: 600;
+            color: var(--accent-btc);
+        }
+
+        /* Result Box */
+        .story-result {
+            grid-column: 2 / 3;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .result-box {
+            background: linear-gradient(135deg, rgba(247, 147, 26, 0.1) 0%, rgba(247, 147, 26, 0.05) 100%);
+            border: 2px solid var(--accent-btc);
+            border-radius: 12px;
+            padding: 1.5rem;
+            text-align: center;
+            flex: 1;
+        }
+
+        .result-main {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .result-label {
+            font-size: 0.9rem;
+            color: var(--text-secondary);
+        }
+
+        .result-value {
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 3rem;
+            font-weight: 700;
+            color: var(--accent-btc);
+            text-shadow: 0 0 30px rgba(247, 147, 26, 0.3);
+        }
+
+        .result-subtext {
+            font-size: 0.85rem;
+            color: var(--text-muted);
+            margin-top: 1rem;
+            padding-top: 1rem;
+            border-top: 1px solid var(--border);
+        }
+
+        .result-subtext span {
+            color: var(--accent-green);
+            font-family: 'JetBrains Mono', monospace;
+            font-weight: 600;
+        }
+
+        .result-insight {
+            margin-top: 1rem;
+            padding: 1rem;
+            background: var(--bg-tertiary);
+            border-radius: 8px;
+            border-left: 3px solid var(--accent-green);
+        }
+
+        .insight-text {
+            font-size: 0.85rem;
+            color: var(--text-secondary);
+            line-height: 1.5;
+        }
+
+        /* Debt Section */
+        .story-debt {
+            grid-column: 1 / -1;
+        }
+
+        .debt-intro {
+            font-size: 0.85rem;
+            color: var(--text-muted);
+            margin-bottom: 1rem;
+        }
+
+        .debt-grid {
+            display: grid;
+            grid-template-columns: repeat(6, 1fr);
+            gap: 0.75rem;
+            margin-bottom: 1rem;
+        }
+
+        .debt-toggle {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 0.25rem;
+            padding: 0.75rem;
+            background: var(--bg-tertiary);
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.15s ease;
+            font-size: 0.8rem;
+            color: var(--text-secondary);
+        }
+
+        .debt-toggle:hover {
+            background: var(--bg-highlight);
+        }
+
+        .debt-toggle input {
+            accent-color: var(--accent-btc);
+        }
+
+        .debt-toggle span {
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 0.75rem;
+            color: var(--text-muted);
+        }
+
+        .debt-toggle:has(input:not(:checked)) {
+            opacity: 0.4;
+            text-decoration: line-through;
+        }
+
+        .debt-result {
+            display: flex;
+            gap: 2rem;
+            padding: 1rem;
+            background: var(--bg-tertiary);
+            border-radius: 8px;
+        }
+
+        .debt-stat {
+            display: flex;
+            flex-direction: column;
+            gap: 0.25rem;
+        }
+
+        .debt-stat-label {
+            font-size: 0.7rem;
+            color: var(--text-muted);
+            text-transform: uppercase;
+        }
+
+        .debt-stat-value {
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 1.25rem;
+            font-weight: 600;
+            color: var(--text-primary);
+        }
+
+        .debt-stat-value.highlight {
+            color: var(--accent-green);
+        }
+
+        /* Debt Explanation */
+        .debt-explanation {
+            margin-top: 1rem;
+            padding: 1rem;
+            background: var(--bg-tertiary);
+            border-radius: 8px;
+            border-left: 3px solid var(--accent-btc);
+            font-size: 0.85rem;
+            color: var(--text-secondary);
+            line-height: 1.5;
+        }
+
+        .debt-explanation code {
+            background: var(--bg-highlight);
+            padding: 0.15rem 0.4rem;
+            border-radius: 4px;
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 0.8rem;
+            color: var(--accent-btc);
+        }
+
+        /* Issuance Runway */
+        .story-runway {
+            grid-column: 1 / -1;
+        }
+
+        .runway-intro {
+            font-size: 0.85rem;
+            color: var(--text-muted);
+            margin-bottom: 1rem;
+        }
+
+        .atm-grid {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 0.75rem;
+            margin-bottom: 1rem;
+        }
+
+        .atm-item {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: 0.75rem;
+            background: var(--bg-tertiary);
+            border-radius: 8px;
+        }
+
+        .atm-ticker {
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 0.85rem;
+            font-weight: 600;
+            color: var(--accent-btc);
+        }
+
+        .atm-remaining {
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 1rem;
+            color: var(--text-primary);
+            margin-top: 0.25rem;
+        }
+
+        .runway-result {
+            display: flex;
+            gap: 2rem;
+            padding: 1rem;
+            background: var(--bg-tertiary);
+            border-radius: 8px;
+        }
+
+        .runway-stat {
+            display: flex;
+            flex-direction: column;
+            gap: 0.25rem;
+        }
+
+        .runway-stat.highlight {
+            background: rgba(247, 147, 26, 0.15);
+            padding: 0.5rem 1rem;
+            border-radius: 6px;
+            border: 1px solid var(--accent-btc);
+        }
+
+        .runway-stat-label {
+            font-size: 0.7rem;
+            color: var(--text-muted);
+            text-transform: uppercase;
+        }
+
+        .runway-stat-value {
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 1.25rem;
+            font-weight: 600;
+            color: var(--text-primary);
+        }
+
+        .runway-stat.highlight .runway-stat-value {
+            color: var(--accent-btc);
+        }
+
+        @media (max-width: 1400px) {
+            .story-grid { grid-template-columns: repeat(4, 1fr); }
+        }
+
+        @media (max-width: 1200px) {
+            .story-container { grid-template-columns: 1fr; }
+            .story-live, .story-madlibs, .story-result, .story-debt, .story-runway { grid-column: 1; }
+            .story-grid { grid-template-columns: repeat(3, 1fr); }
+            .debt-grid { grid-template-columns: repeat(3, 1fr); }
+            .atm-grid { grid-template-columns: repeat(2, 1fr); }
+        }
+
+        @media (max-width: 768px) {
+            .container {
+                padding: 1rem;
+            }
+
+            header h1 {
+                font-size: 1.5rem;
+            }
+
+            header .subtitle {
+                font-size: 0.85rem;
+            }
+
+            .story-grid {
+                grid-template-columns: repeat(2, 1fr);
+                gap: 0.5rem;
+            }
+
+            .stat-value {
+                font-size: 1.25rem;
+            }
+
+            .stat-label {
+                font-size: 0.6rem;
+            }
+
+            .story-stat.highlight {
+                grid-column: span 2;
+            }
+
+            .madlib-text {
+                font-size: 1rem;
+                flex-wrap: wrap;
+                gap: 0.5rem;
+            }
+
+            .madlib-input {
+                width: 100%;
+                justify-content: space-between;
+                margin: 0.5rem 0;
+            }
+
+            .madlib-input input[type="range"] {
+                flex: 1;
+            }
+
+            .result-value {
+                font-size: 3rem;
+            }
+
+            .debt-grid {
+                grid-template-columns: repeat(2, 1fr);
+            }
+
+            .atm-grid {
+                grid-template-columns: repeat(2, 1fr);
+            }
+
+            .runway-result {
+                flex-direction: column;
+                gap: 1rem;
+            }
+
+            .ath-callout {
+                font-size: 0.75rem;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .container {
+                padding: 0.75rem;
+            }
+
+            header h1 {
+                font-size: 1.25rem;
+            }
+
+            .story-grid {
+                grid-template-columns: 1fr 1fr;
+            }
+
+            .stat-value {
+                font-size: 1.1rem;
+            }
+
+            .result-value {
+                font-size: 2.5rem;
+            }
+
+            .debt-grid {
+                grid-template-columns: 1fr 1fr;
+            }
+
+            .debt-toggle {
+                padding: 0.5rem;
+                font-size: 0.75rem;
+            }
+
+            .atm-grid {
+                grid-template-columns: 1fr 1fr;
+            }
+        }
+
+        /* Footer */
+        .footer {
+            margin-top: 3rem;
+            padding: 2rem 0;
+            border-top: 1px solid var(--border);
+            text-align: center;
+            color: var(--text-muted);
+            font-size: 0.85rem;
+        }
+
+        .footer a {
+            color: var(--accent-btc);
+            text-decoration: none;
+            font-weight: 500;
+        }
+
+        .footer a:hover {
+            text-decoration: underline;
+        }
+
+        .footer .disclaimer {
+            font-weight: 600;
+            color: var(--text-secondary);
+            margin-bottom: 0.5rem;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>₿ BTC Pref Flywheel — Amplification Hurdle Rate</h1>
+            <p class="subtitle">How hard does Strategy have to press the accelerator to actually maintain amplification?</p>
+        </header>
+
+        <!-- THE STORY: MAD LIBS STYLE -->
+        <div class="story-container">
+            <div class="story-section story-live">
+                <div class="story-header">
+                    <span class="live-indicator" id="liveIndicator">⚫</span>
+                    <span>LIVE STATE</span>
+                    <button class="fetch-btn" id="fetchBtn" onclick="fetchLiveData()">↻ Refresh</button>
+                </div>
+                <div class="story-grid">
+                    <div class="story-stat">
+                        <div class="stat-value" id="liveBtcPrice">—</div>
+                        <div class="stat-label">BTC Price</div>
+                    </div>
+                    <div class="story-stat">
+                        <div class="stat-value" id="liveBtcHoldings">—</div>
+                        <div class="stat-label">BTC Holdings</div>
+                    </div>
+                    <div class="story-stat">
+                        <div class="stat-value" id="liveBtcNav">—</div>
+                        <div class="stat-label">BTC NAV</div>
+                    </div>
+                    <div class="story-stat">
+                        <div class="stat-value" id="livePref">—</div>
+                        <div class="stat-label">Pref Notional</div>
+                    </div>
+                    <div class="story-stat">
+                        <div class="stat-value" id="liveDebt">—</div>
+                        <div class="stat-label">Debt Notional</div>
+                    </div>
+                    <div class="story-stat highlight">
+                        <div class="stat-value" id="liveAmplification">—</div>
+                        <div class="stat-label">Amplification</div>
+                    </div>
+                    <div class="story-stat">
+                        <div class="stat-value" id="liveMnav">—</div>
+                        <div class="stat-label">mNAV</div>
+                    </div>
+                </div>
+                <div class="live-timestamp" id="liveTimestamp">Loading...</div>
+            </div>
+
+            <!-- THE MAD LIBS -->
+            <div class="story-section story-madlibs">
+                <div class="story-header">📝 THE SCENARIO</div>
+                <div class="madlib-container">
+                    <p class="madlib-text">
+                        If Bitcoin appreciates 
+                        <span class="madlib-input">
+                            <input type="range" id="mlBtcCagr" min="0" max="100" value="25" step="5">
+                            <span class="madlib-value" id="mlBtcCagr_val">25%</span>
+                        </span>
+                        this year,
+                    </p>
+                    <div class="ath-callout" id="athCallout">
+                        📍 Currently <span id="athDistance">—%</span> from ATH ($<span id="athPrice">109K</span>). Reaching ATH = <span id="athGain">—%</span> gain.
+                    </div>
+                    <p class="madlib-text">
+                        and Strategy grows their BTC stack by 
+                        <span class="madlib-input">
+                            <input type="range" id="mlBtcGain" min="0" max="200" value="50" step="5">
+                            <span class="madlib-value" id="mlBtcGain_val">50%</span>
+                        </span>
+                        <span class="madlib-note">(they did 50.4% in 2025)</span>
+                    </p>
+                </div>
+            </div>
+
+            <!-- THE PUNCHLINE -->
+            <div class="story-section story-result">
+                <div class="story-header">🎯 THE HURDLE RATE</div>
+                <div class="result-box">
+                    <div class="result-main">
+                        <span class="result-label">To maintain amplification, Strategy must issue up to</span>
+                        <span class="result-value" id="resultPrefDollars">$—B</span>
+                        <span class="result-label">of new prefs per year.</span>
+                    </div>
+                    <div class="result-subtext">
+                        That's <span id="resultMaxGpref">—%</span> growth on the current pref notional.
+                    </div>
+                </div>
+                <div class="result-insight">
+                    <div class="insight-text" id="insightText">
+                        Loading insight...
+                    </div>
+                </div>
+            </div>
+
+            <!-- DEBT SCENARIO -->
+            <div class="story-section story-debt">
+                <div class="story-header">🔧 DEBT RETIREMENT SCENARIOS</div>
+                <p class="debt-intro">Uncheck bonds to model retirement. Retired debt adds to pref issuance hurdle.</p>
+                <div class="debt-grid" id="debtCheckboxes">
+                    <label class="debt-toggle"><input type="checkbox" id="debt2028" checked> 2028 <span>$1.01B</span></label>
+                    <label class="debt-toggle"><input type="checkbox" id="debt2029" checked> 2029 <span>$3.00B</span></label>
+                    <label class="debt-toggle"><input type="checkbox" id="debt2030a" checked> 2030A <span>$0.80B</span></label>
+                    <label class="debt-toggle"><input type="checkbox" id="debt2030b" checked> 2030B <span>$2.00B</span></label>
+                    <label class="debt-toggle"><input type="checkbox" id="debt2031" checked> 2031 <span>$0.60B</span></label>
+                    <label class="debt-toggle"><input type="checkbox" id="debt2032" checked> 2032 <span>$0.80B</span></label>
+                </div>
+                <div class="debt-result">
+                    <div class="debt-stat">
+                        <span class="debt-stat-label">Debt Outstanding</span>
+                        <span class="debt-stat-value" id="debtOutstanding">$8.21B</span>
+                    </div>
+                    <div class="debt-stat">
+                        <span class="debt-stat-label">Pref Backfill Needed</span>
+                        <span class="debt-stat-value highlight" id="livePrefBackfill">+$0.0B</span>
+                    </div>
+                </div>
+                <div class="debt-explanation" id="debtExplanation">
+                    <!-- Filled dynamically -->
+                </div>
+            </div>
+
+            <!-- ISSUANCE RUNWAY -->
+            <div class="story-section story-runway">
+                <div class="story-header">📊 PREFERRED SHARES ATM RUNWAY</div>
+                <p class="runway-intro">Based on ATM authorization limits. How long until shareholder vote needed?</p>
+                <div class="atm-grid">
+                    <div class="atm-item">
+                        <span class="atm-ticker">STRK</span>
+                        <span class="atm-remaining">$20.3B</span>
+                    </div>
+                    <div class="atm-item">
+                        <span class="atm-ticker">STRF</span>
+                        <span class="atm-remaining">$1.7B</span>
+                    </div>
+                    <div class="atm-item">
+                        <span class="atm-ticker">STRD</span>
+                        <span class="atm-remaining">$4.1B</span>
+                    </div>
+                    <div class="atm-item">
+                        <span class="atm-ticker">STRC</span>
+                        <span class="atm-remaining">$4.0B</span>
+                    </div>
+                </div>
+                <div class="runway-result">
+                    <div class="runway-stat">
+                        <span class="runway-stat-label">Total ATM Capacity</span>
+                        <span class="runway-stat-value" id="totalAtmCapacity">$30.1B</span>
+                    </div>
+                    <div class="runway-stat">
+                        <span class="runway-stat-label">Annual Hurdle</span>
+                        <span class="runway-stat-value" id="runwayHurdle">$14.3B</span>
+                    </div>
+                    <div class="runway-stat highlight">
+                        <span class="runway-stat-label">Years Until Vote</span>
+                        <span class="runway-stat-value" id="yearsUntilVote">~2.1 yrs</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="main-layout" style="display: none;">
+            <!-- INPUT PANEL (hidden - now using story format above) -->
+            <div class="panel">
+                <div class="panel-header">
+                    <span class="panel-icon">⚙️</span>
+                    <span class="panel-title">Model Inputs</span>
+                </div>
+
+                <!-- CURRENT STATE -->
+                <div class="section">
+                    <div class="section-title">📍 Current State</div>
+                    
+                    <div class="input-group">
+                        <div class="input-header">
+                            <span class="input-label">Current Amplification (A₀)</span>
+                            <span class="input-value" id="A0_display">0.20</span>
+                        </div>
+                        <div class="input-description">
+                            (Pref notional + Debt notional) ÷ BTC stack value. Total senior capital per dollar of BTC.
+                        </div>
+                        <div class="input-formula">A₀ = (P₀ + D₀) / B₀</div>
+                        <input type="range" id="A0" min="0.05" max="0.60" value="0.20" step="0.01">
+                    </div>
+
+                    <div class="input-group">
+                        <div class="input-header">
+                            <span class="input-label">Max Acceptable Amplification (A_max)</span>
+                            <span class="input-value" id="Amax_display">0.40</span>
+                        </div>
+                        <div class="input-description">
+                            Your leverage ceiling. Beyond this = fragile.
+                        </div>
+                        <div class="input-formula">A_max = ceiling you won't exceed</div>
+                        <input type="range" id="Amax" min="0.20" max="0.80" value="0.40" step="0.01">
+                    </div>
+
+                    <div class="input-group">
+                        <div class="input-header">
+                            <span class="input-label">Convertible Debt (toggle to include)</span>
+                            <span class="input-value" id="debtTotal_display">$0.0B</span>
+                        </div>
+                        <div class="input-description">
+                            Check bonds still outstanding. Unchecked = retired/converted.
+                        </div>
+                        <div class="debt-checkboxes" id="debtCheckboxes">
+                            <label class="debt-checkbox"><input type="checkbox" id="debt2028" value="1.01"> 2028 ($1.01B)</label>
+                            <label class="debt-checkbox"><input type="checkbox" id="debt2029" value="3.00"> 2029 ($3.00B)</label>
+                            <label class="debt-checkbox"><input type="checkbox" id="debt2030a" value="0.80"> 2030A ($0.80B)</label>
+                            <label class="debt-checkbox"><input type="checkbox" id="debt2030b" value="2.00"> 2030B ($2.00B)</label>
+                            <label class="debt-checkbox"><input type="checkbox" id="debt2031" value="0.60"> 2031 ($0.60B)</label>
+                            <label class="debt-checkbox"><input type="checkbox" id="debt2032" value="0.80"> 2032 ($0.80B)</label>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="divider"></div>
+
+                <!-- GROWTH RATES -->
+                <div class="section">
+                    <div class="section-title">📈 Growth Rates (Annual)</div>
+
+                    <div class="input-group">
+                        <div class="input-header">
+                            <span class="input-label">BTC Price CAGR (g_BTC_price)</span>
+                            <span class="input-value" id="gBtcPrice_display">25%</span>
+                        </div>
+                        <div class="input-description">
+                            Expected annual BTC price appreciation. This is EXOGENOUS — you don't control it.
+                        </div>
+                        <div class="input-formula">g_BTC_price = (BTC_t+1 / BTC_t) - 1</div>
+                        <input type="range" id="gBtcPrice" min="-20" max="80" value="25" step="1">
+                    </div>
+
+                    <div class="input-group">
+                        <div class="input-header">
+                            <span class="input-label">Pref Notional Growth (g_pref)</span>
+                            <span class="input-value" id="gPref_display">20%</span>
+                        </div>
+                        <div class="input-description">
+                            How fast you're growing the pref notional. Positive = issuing more prefs.
+                        </div>
+                        <div class="input-formula">g_pref = (P_t+1 / P_t) - 1</div>
+                        <input type="range" id="gPref" min="0" max="50" value="20" step="1">
+                    </div>
+
+                    <div class="input-group">
+                        <div class="input-header">
+                            <span class="input-label">Pref Coupon / Yield (c_pref)</span>
+                            <span class="input-value" id="cPref_display">10%</span>
+                        </div>
+                        <div class="input-description">
+                            Annual cost rate on pref notional. What you pay to pref holders.
+                        </div>
+                        <div class="input-formula">c_pref = annual dividend / notional</div>
+                        <input type="range" id="cPref" min="4" max="18" value="10" step="0.5">
+                    </div>
+                </div>
+
+                <div class="divider"></div>
+
+                <!-- EQUITY CHANNEL -->
+                <div class="section">
+                    <div class="section-title">🏦 Equity Channel (Capital Access)</div>
+
+                    <div class="input-group">
+                        <div class="input-header">
+                            <span class="input-label">mNAV Premium (m)</span>
+                            <span class="input-value" id="mNav_display">1.50x</span>
+                        </div>
+                        <div class="input-description">
+                            Market cap ÷ NAV. If m ≥ 1, you can issue equity to buy BTC without diluting BTC/share.
+                        </div>
+                        <div class="input-formula">m = Market Cap / BTC NAV</div>
+                        <input type="range" id="mNav" min="0.4" max="3.0" value="1.50" step="0.05">
+                    </div>
+
+                    <div class="input-group">
+                        <div class="input-header">
+                            <span class="input-label">BTC Gain — Stack Growth Rate (g_BTC_acc)</span>
+                            <span class="input-value" id="gBtcAcc_display">15%</span>
+                        </div>
+                        <div class="input-description">
+                            Total BTC stack growth (accretive + neutral). Strategy grew stack 50.4% in 2025.
+                        </div>
+                        <div class="input-formula">g_BTC_acc = ΔBTC / BTC₀ (requires m ≥ 1)</div>
+                        <input type="range" id="gBtcAcc" min="0" max="200" value="15" step="5">
+                    </div>
+                </div>
+            </div>
+
+            <!-- OUTPUT PANEL -->
+            <div class="output-panel">
+                
+                <!-- REGIME INDICATOR -->
+                <div class="panel">
+                    <div class="panel-header">
+                        <span class="panel-icon">🚦</span>
+                        <span class="panel-title">Current Regime</span>
+                    </div>
+
+                    <div class="regime-indicator open" id="regimeIndicator">
+                        <div class="regime-title" id="regimeTitle">EQUITY CHANNEL OPEN</div>
+                        <div class="regime-description" id="regimeDescription">
+                            m ≥ 1 — You can issue equity to accumulate BTC without per-share dilution. You have two levers: BTC price + equity-funded accumulation.
+                        </div>
+                    </div>
+                </div>
+
+                <!-- LEVERAGE RUNWAY -->
+                <div class="panel">
+                    <div class="panel-header">
+                        <span class="panel-icon">🛤️</span>
+                        <span class="panel-title">Leverage Runway</span>
+                    </div>
+
+                    <div class="runway-viz">
+                        <div class="runway-header">
+                            <span class="runway-title">Current → Max Amplification</span>
+                            <span class="runway-value" id="runwayValue">∞</span>
+                        </div>
+                        <div class="runway-track">
+                            <div class="runway-fill" id="runwayFill" style="width: 50%; background: var(--accent-green);"></div>
+                        </div>
+                        <div class="runway-markers">
+                            <span>A₀ = <span id="A0_marker">0.20</span></span>
+                            <span>A_max = <span id="Amax_marker">0.40</span></span>
+                        </div>
+                    </div>
+
+                    <div class="explanation-box" id="runwayExplanation" style="margin-top: 1rem;">
+                        <div class="explanation-title">What This Means</div>
+                        <div class="explanation-text" id="runwayExplanationText">
+                            Loading...
+                        </div>
+                    </div>
+                </div>
+
+                <!-- KEY METRICS -->
+                <div class="panel">
+                    <div class="panel-header">
+                        <span class="panel-icon">📊</span>
+                        <span class="panel-title">Key Metrics</span>
+                    </div>
+
+                    <div class="metric-grid">
+                        <div class="metric-card">
+                            <div class="metric-label">Computed</div>
+                            <div class="metric-name">BTC Stack Dollar Growth (g_stack)</div>
+                            <div class="metric-value positive" id="gStack_value">43.8%</div>
+                            <div class="formula-display" id="gStack_formula">= (1+25%)(1+15%) - 1</div>
+                        </div>
+
+                        <div class="metric-card">
+                            <div class="metric-label">Computed</div>
+                            <div class="metric-name">Leverage Multiplier (per year)</div>
+                            <div class="metric-value positive" id="leverageMultiplier_value">0.835x</div>
+                            <div class="formula-display" id="leverageMultiplier_formula">= (1+20%) / (1+43.8%)</div>
+                        </div>
+
+                        <div class="metric-card">
+                            <div class="metric-label">Test 1</div>
+                            <div class="metric-name">Coupon Clearance</div>
+                            <div class="metric-value positive" id="couponClearance_value">✓ Pass</div>
+                            <div class="formula-display" id="couponClearance_formula">43.8% > 10%</div>
+                        </div>
+
+                        <div class="metric-card">
+                            <div class="metric-label">Test 2</div>
+                            <div class="metric-name">Leverage Sustainability</div>
+                            <div class="metric-value positive" id="leverageSustain_value">✓ Pass</div>
+                            <div class="formula-display" id="leverageSustain_formula">43.8% ≥ 20%</div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- SCENARIO COMPARISON -->
+                <div class="panel">
+                    <div class="panel-header">
+                        <span class="panel-icon">🔮</span>
+                        <span class="panel-title">What-If Scenarios</span>
+                    </div>
+
+                    <div class="scenario-cards">
+                        <div class="scenario-card">
+                            <div class="scenario-title">If Equity Stays Open</div>
+                            <div class="scenario-condition">m ≥ 1, current accumulation rate</div>
+                            <div class="scenario-result" id="scenarioOpen_result">DELEVERING</div>
+                            <div class="scenario-detail" id="scenarioOpen_detail">
+                                Leverage drops 16.5% per year. You have room to issue more prefs.
+                            </div>
+                        </div>
+
+                        <div class="scenario-card">
+                            <div class="scenario-title">If Equity Closes</div>
+                            <div class="scenario-condition">m &lt; 1, no new BTC accumulation</div>
+                            <div class="scenario-result" id="scenarioClosed_result">8.2 years</div>
+                            <div class="scenario-detail" id="scenarioClosed_detail">
+                                Until you hit A_max, assuming BTC CAGR holds at 25%.
+                            </div>
+                        </div>
+
+                        <div class="scenario-card">
+                            <div class="scenario-title">Required BTC CAGR (if equity closed)</div>
+                            <div class="scenario-condition">To keep leverage flat with no accumulation</div>
+                            <div class="scenario-result" id="scenarioRequiredCagr_result">11%</div>
+                            <div class="scenario-detail" id="scenarioRequiredCagr_detail">
+                                BTC price must grow at least as fast as g_senior.
+                            </div>
+                        </div>
+
+                        <div class="scenario-card">
+                            <div class="scenario-title">Max g_pref (at current conditions)</div>
+                            <div class="scenario-condition">To keep leverage exactly flat</div>
+                            <div class="scenario-result" id="scenarioMaxGpref_result">43.8%</div>
+                            <div class="scenario-detail" id="scenarioMaxGpref_detail">
+                                Max pref growth rate to stay at current leverage.
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- VARIABLE REFERENCE -->
+                <div class="panel">
+                    <div class="panel-header">
+                        <span class="panel-icon">📖</span>
+                        <span class="panel-title">Variable Reference</span>
+                    </div>
+
+                    <table class="comparison-table">
+                        <thead>
+                            <tr>
+                                <th>Variable</th>
+                                <th>Name</th>
+                                <th>Current</th>
+                                <th>You Control?</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td style="color: var(--accent-btc);">A₀</td>
+                                <td>Current Amplification</td>
+                                <td id="ref_A0">0.20</td>
+                                <td><span class="status-badge warn">State</span></td>
+                            </tr>
+                            <tr>
+                                <td style="color: var(--accent-btc);">A_max</td>
+                                <td>Max Acceptable Amplification</td>
+                                <td id="ref_Amax">0.40</td>
+                                <td><span class="status-badge pass">Yes</span></td>
+                            </tr>
+                            <tr>
+                                <td style="color: var(--accent-purple);">g_BTC_price</td>
+                                <td>BTC Price CAGR</td>
+                                <td id="ref_gBtcPrice">25%</td>
+                                <td><span class="status-badge fail">No</span></td>
+                            </tr>
+                            <tr>
+                                <td style="color: var(--accent-purple);">g_BTC_acc</td>
+                                <td>BTC Accumulation Rate</td>
+                                <td id="ref_gBtcAcc">15%</td>
+                                <td><span class="status-badge warn">If m≥1</span></td>
+                            </tr>
+                            <tr>
+                                <td style="color: var(--accent-green);">g_stack</td>
+                                <td>BTC Stack Dollar Growth</td>
+                                <td id="ref_gStack">43.8%</td>
+                                <td><span class="status-badge warn">Computed</span></td>
+                            </tr>
+                            <tr>
+                                <td style="color: var(--accent-yellow);">g_pref</td>
+                                <td>Pref Notional Growth</td>
+                                <td id="ref_gPref">20%</td>
+                                <td><span class="status-badge pass">Yes</span></td>
+                            </tr>
+                            <tr>
+                                <td style="color: var(--accent-yellow);">D</td>
+                                <td>Debt Outstanding</td>
+                                <td id="ref_debt">$0.0B</td>
+                                <td><span class="status-badge pass">Toggle</span></td>
+                            </tr>
+                            <tr>
+                                <td style="color: var(--accent-red);">c_pref</td>
+                                <td>Pref Coupon / Yield</td>
+                                <td id="ref_cPref">10%</td>
+                                <td><span class="status-badge pass">Yes</span></td>
+                            </tr>
+                            <tr>
+                                <td style="color: var(--accent-blue);">m</td>
+                                <td>mNAV Premium</td>
+                                <td id="ref_mNav">1.50x</td>
+                                <td><span class="status-badge fail">No</span></td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+        <!-- Footer -->
+        <footer class="footer">
+            <div class="disclaimer">NFA</div>
+            <div>
+                Built by <a href="https://x.com/docstacks" target="_blank" rel="noopener">@docstacks</a> on X
+                · <a href="https://github.com/docstacks" target="_blank" rel="noopener">GitHub</a>
+            </div>
+        </footer>
+    </div>
+
+    <script>
+        // ============================================
+        // STATE
+        // ============================================
+        const state = {
+            A0: 0.20,           // Current amplification (P+D)/B
+            Amax: 0.40,         // Max acceptable amplification
+            debtNotional: 0,    // Total debt from checkboxes (in $B)
+            gBtcPrice: 25,      // BTC price CAGR (%)
+            gBtcAcc: 15,        // BTC accumulation rate (%)
+            gPref: 20,          // Pref notional growth (%)
+            cPref: 10,          // Pref coupon (%)
+            mNav: 1.50          // mNAV premium
+        };
+
+        // Debt bonds from Strategy.com/debt
+        const debtBonds = {
+            debt2028: 1.01,
+            debt2029: 3.00,
+            debt2030a: 0.80,
+            debt2030b: 2.00,
+            debt2031: 0.60,
+            debt2032: 0.80
+        };
+
+        // ============================================
+        // DOM ELEMENTS
+        // ============================================
+        const inputs = {
+            A0: document.getElementById('A0'),
+            Amax: document.getElementById('Amax'),
+            gBtcPrice: document.getElementById('gBtcPrice'),
+            gBtcAcc: document.getElementById('gBtcAcc'),
+            gPref: document.getElementById('gPref'),
+            cPref: document.getElementById('cPref'),
+            mNav: document.getElementById('mNav')
+        };
+
+        const displays = {
+            A0: document.getElementById('A0_display'),
+            Amax: document.getElementById('Amax_display'),
+            debtTotal: document.getElementById('debtTotal_display'),
+            gBtcPrice: document.getElementById('gBtcPrice_display'),
+            gBtcAcc: document.getElementById('gBtcAcc_display'),
+            gPref: document.getElementById('gPref_display'),
+            cPref: document.getElementById('cPref_display'),
+            mNav: document.getElementById('mNav_display')
+        };
+
+        // Debt checkbox elements
+        const debtCheckboxes = {
+            debt2028: document.getElementById('debt2028'),
+            debt2029: document.getElementById('debt2029'),
+            debt2030a: document.getElementById('debt2030a'),
+            debt2030b: document.getElementById('debt2030b'),
+            debt2031: document.getElementById('debt2031'),
+            debt2032: document.getElementById('debt2032')
+        };
+
+        // Live data storage (from API)
+        let liveData = {
+            btcNavB: 0,
+            prefB: 0,
+            debtB: 0,      // Full debt from API
+            evB: 0,
+            mNav: 1,
+            btcPrice: 0
+        };
+
+        // BTC All-Time High (update as needed)
+        const BTC_ATH = 126198;
+
+        // Calculate total debt from checkboxes
+        function calcDebtNotional() {
+            let total = 0;
+            Object.keys(debtCheckboxes).forEach(key => {
+                if (debtCheckboxes[key].checked) {
+                    total += debtBonds[key];
+                }
+            });
+            return total;
+        }
+
+        // Update live display based on checkbox state
+        // Key insight: Retired debt must be ISSUED as prefs - it adds to the hurdle
+        function updateLiveDisplay() {
+            if (liveData.btcNavB === 0) return; // No data yet
+            
+            const checkedDebt = calcDebtNotional();
+            const retiredDebt = liveData.debtB - checkedDebt;
+            
+            // Pref tower stays at base (prefs haven't been issued yet)
+            // Retiring debt creates a "gap" that must be filled via issuance
+            
+            // Current amplification DROPS when debt retired (before backfill)
+            const currentAmplification = (liveData.prefB + checkedDebt) / liveData.btcNavB;
+            
+            // Base amplification (target to maintain)
+            const baseAmplification = (liveData.prefB + liveData.debtB) / liveData.btcNavB;
+            
+            // Update displays
+            document.getElementById('liveDebt').textContent = '$' + checkedDebt.toFixed(2) + 'B';
+            document.getElementById('livePref').textContent = '$' + liveData.prefB.toFixed(2) + 'B';
+            document.getElementById('liveAmplification').textContent = (currentAmplification * 100).toFixed(1) + '%';
+            document.getElementById('livePrefBackfill').textContent = '+$' + retiredDebt.toFixed(1) + 'B';
+            
+            // Update model state
+            state.A0 = currentAmplification;
+            state.debtNotional = checkedDebt;
+        }
+
+        // ============================================
+        // CALCULATIONS
+        // ============================================
+        
+        // BTC stack dollar growth = (1 + price)(1 + acc) - 1
+        function calcGStack(gBtcPrice, gBtcAcc) {
+            return (1 + gBtcPrice / 100) * (1 + gBtcAcc / 100) - 1;
+        }
+
+        // Leverage multiplier per period
+        // A_{t+1}/A_t = (1 + g_senior) / (1 + g_stack)
+        // Both inputs are in percentage form (e.g., 20 for 20%)
+        function calcLeverageMultiplier(gSenior, gStack) {
+            return (1 + gSenior / 100) / (1 + gStack / 100);
+        }
+
+        // Years until A hits Amax given constant multiplier
+        // A_t = A_0 * multiplier^t
+        // Amax = A_0 * multiplier^t
+        // t = log(Amax/A_0) / log(multiplier)
+        function calcYearsToAmax(A0, Amax, leverageMultiplier) {
+            if (leverageMultiplier <= 1) {
+                return Infinity; // Never hits Amax, actually delevering
+            }
+            if (A0 >= Amax) {
+                return 0; // Already at or above max
+            }
+            return Math.log(Amax / A0) / Math.log(leverageMultiplier);
+        }
+
+        // If equity closed (no accumulation), what's the leverage multiplier?
+        function calcLeverageMultiplierEquityClosed(gPref, gBtcPrice) {
+            return (1 + gPref / 100) / (1 + gBtcPrice / 100);
+        }
+
+        // ============================================
+        // UPDATE UI
+        // ============================================
+        function update() {
+            // Calculate debt from checkboxes
+            state.debtNotional = calcDebtNotional();
+            
+            // Update display values
+            displays.A0.textContent = state.A0.toFixed(2);
+            displays.Amax.textContent = state.Amax.toFixed(2);
+            displays.debtTotal.textContent = '$' + state.debtNotional.toFixed(2) + 'B';
+            displays.gBtcPrice.textContent = state.gBtcPrice + '%';
+            displays.gBtcAcc.textContent = state.gBtcAcc + '%';
+            displays.gPref.textContent = state.gPref + '%';
+            displays.cPref.textContent = state.cPref + '%';
+            displays.mNav.textContent = state.mNav.toFixed(2) + 'x';
+
+            // Core calculations
+            const equityOpen = state.mNav >= 1;
+            const effectiveGBtcAcc = equityOpen ? state.gBtcAcc : 0;
+            const gStack = calcGStack(state.gBtcPrice, effectiveGBtcAcc);
+            const gStackPercent = gStack * 100;
+            
+            // Pref is the only growing senior capital. Debt is static (being retired).
+            // So senior capital growth = g_pref (debt just sits there until retired)
+            const gSenior = state.gPref;
+            
+            const leverageMultiplier = calcLeverageMultiplier(gSenior, gStackPercent);
+            const yearsToAmax = calcYearsToAmax(state.A0, state.Amax, leverageMultiplier);
+
+            // Equity closed scenario
+            const gStackClosedPercent = calcGStack(state.gBtcPrice, 0) * 100;
+            const leverageMultiplierClosed = calcLeverageMultiplier(gSenior, gStackClosedPercent);
+            const yearsToAmaxClosed = calcYearsToAmax(state.A0, state.Amax, leverageMultiplierClosed);
+
+            // Tests
+            const couponCleared = gStackPercent > state.cPref;
+            const leverageStable = gStackPercent >= gSenior;
+
+            // ---- Update Regime Indicator ----
+            const regimeIndicator = document.getElementById('regimeIndicator');
+            const regimeTitle = document.getElementById('regimeTitle');
+            const regimeDescription = document.getElementById('regimeDescription');
+
+            if (equityOpen) {
+                regimeIndicator.className = 'regime-indicator open';
+                regimeTitle.textContent = 'EQUITY CHANNEL OPEN';
+                regimeDescription.textContent = `m = ${state.mNav.toFixed(2)}x ≥ 1 — Two engines: BTC $Gain (${state.gBtcPrice}% price) + BTC Gain (${state.gBtcAcc}% stack growth).`;
+            } else {
+                regimeIndicator.className = 'regime-indicator closed';
+                regimeTitle.textContent = 'EQUITY CHANNEL CLOSED';
+                regimeDescription.textContent = `m = ${state.mNav.toFixed(2)}x < 1 — One engine only: BTC $Gain (${state.gBtcPrice}% price). Can't grow stack without dilution.`;
+            }
+
+            // ---- Update Runway ----
+            const runwayFill = document.getElementById('runwayFill');
+            const runwayValue = document.getElementById('runwayValue');
+            const fillPercent = Math.min(100, (state.A0 / state.Amax) * 100);
+            runwayFill.style.width = fillPercent + '%';
+
+            document.getElementById('A0_marker').textContent = state.A0.toFixed(2);
+            document.getElementById('Amax_marker').textContent = state.Amax.toFixed(2);
+
+            if (leverageMultiplier < 1) {
+                runwayFill.style.background = 'var(--accent-green)';
+                runwayValue.textContent = '∞ (delevering)';
+                runwayValue.style.color = 'var(--accent-green)';
+            } else if (leverageMultiplier === 1) {
+                runwayFill.style.background = 'var(--accent-yellow)';
+                runwayValue.textContent = '∞ (stable)';
+                runwayValue.style.color = 'var(--accent-yellow)';
+            } else {
+                runwayFill.style.background = yearsToAmax > 5 ? 'var(--accent-yellow)' : 'var(--accent-red)';
+                runwayValue.textContent = yearsToAmax.toFixed(1) + ' years';
+                runwayValue.style.color = yearsToAmax > 5 ? 'var(--accent-yellow)' : 'var(--accent-red)';
+            }
+
+            // ---- Runway Explanation ----
+            const explanationText = document.getElementById('runwayExplanationText');
+            const debtNote = state.debtNotional > 0 ? ` (+ $${state.debtNotional.toFixed(1)}B debt outstanding)` : ' (no debt outstanding)';
+            if (leverageMultiplier < 1) {
+                const deleverRate = (1 - leverageMultiplier) * 100;
+                explanationText.innerHTML = `
+                    <strong>You are DELEVERING.</strong> Each year, your leverage ratio drops by ${deleverRate.toFixed(1)}%.<br><br>
+                    Your BTC stack grows at <strong>${gStackPercent.toFixed(1)}%</strong> (BTC $Gain ${state.gBtcPrice}% + BTC Gain ${effectiveGBtcAcc}%), 
+                    which outpaces pref growth of <strong>${gSenior.toFixed(1)}%</strong>${debtNote}.<br><br>
+                    You have headroom to issue MORE prefs, up to ${gStackPercent.toFixed(1)}% growth to stay flat.
+                `;
+            } else if (yearsToAmax === Infinity) {
+                explanationText.innerHTML = `
+                    <strong>Leverage is exactly stable.</strong> Your stack growth matches pref growth perfectly${debtNote}.
+                `;
+            } else {
+                explanationText.innerHTML = `
+                    <strong>You are LEVERING UP.</strong> At current pace, you'll hit A_max (${state.Amax.toFixed(2)}) in <strong>${yearsToAmax.toFixed(1)} years</strong>.<br><br>
+                    Your BTC stack grows at <strong>${gStackPercent.toFixed(1)}%</strong>, but prefs grow at <strong>${gSenior.toFixed(1)}%</strong>${debtNote}.<br><br>
+                    To stabilize: slow pref issuance or increase BTC accumulation so g_stack ≥ ${gSenior.toFixed(1)}%.
+                `;
+            }
+
+            // ---- Key Metrics ----
+            document.getElementById('gStack_value').textContent = gStackPercent.toFixed(1) + '%';
+            document.getElementById('gStack_value').className = 'metric-value ' + (couponCleared ? 'positive' : 'negative');
+            document.getElementById('gStack_formula').textContent = `= (1+${state.gBtcPrice}%)(1+${effectiveGBtcAcc}%) - 1`;
+
+            document.getElementById('leverageMultiplier_value').textContent = leverageMultiplier.toFixed(3) + 'x';
+            document.getElementById('leverageMultiplier_value').className = 'metric-value ' + (leverageMultiplier <= 1 ? 'positive' : leverageMultiplier < 1.1 ? 'warning' : 'negative');
+            document.getElementById('leverageMultiplier_formula').textContent = `= (1+${gSenior.toFixed(1)}%) / (1+${gStackPercent.toFixed(1)}%)`;
+
+            document.getElementById('couponClearance_value').textContent = couponCleared ? '✓ Pass' : '✗ Fail';
+            document.getElementById('couponClearance_value').className = 'metric-value ' + (couponCleared ? 'positive' : 'negative');
+            document.getElementById('couponClearance_formula').textContent = `${gStackPercent.toFixed(1)}% ${couponCleared ? '>' : '≤'} ${state.cPref}%`;
+
+            document.getElementById('leverageSustain_value').textContent = leverageStable ? '✓ Pass' : '✗ Fail';
+            document.getElementById('leverageSustain_value').className = 'metric-value ' + (leverageStable ? 'positive' : 'negative');
+            document.getElementById('leverageSustain_formula').textContent = `${gStackPercent.toFixed(1)}% ${leverageStable ? '≥' : '<'} ${gSenior.toFixed(1)}% (g_senior)`;
+
+            // ---- Scenario Cards ----
+            // Open scenario
+            const openResult = document.getElementById('scenarioOpen_result');
+            const openDetail = document.getElementById('scenarioOpen_detail');
+            if (leverageMultiplier < 1) {
+                const deleverRate = (1 - leverageMultiplier) * 100;
+                openResult.textContent = 'DELEVERING';
+                openResult.style.color = 'var(--accent-green)';
+                openDetail.textContent = `Leverage drops ${deleverRate.toFixed(1)}% per year. You have room to issue more prefs.`;
+            } else if (leverageMultiplier === 1) {
+                openResult.textContent = 'STABLE';
+                openResult.style.color = 'var(--accent-yellow)';
+                openDetail.textContent = `Leverage holds steady. You're at equilibrium.`;
+            } else {
+                openResult.textContent = yearsToAmax.toFixed(1) + ' years';
+                openResult.style.color = 'var(--accent-red)';
+                openDetail.textContent = `Until you hit A_max. Consider slowing pref issuance.`;
+            }
+
+            // Closed scenario
+            const closedResult = document.getElementById('scenarioClosed_result');
+            const closedDetail = document.getElementById('scenarioClosed_detail');
+            if (leverageMultiplierClosed < 1) {
+                closedResult.textContent = '∞ (safe)';
+                closedResult.style.color = 'var(--accent-green)';
+                closedDetail.textContent = `Even without equity, BTC $Gain (${state.gBtcPrice}%) exceeds pref growth (${state.gPref}%).`;
+            } else if (leverageMultiplierClosed === 1) {
+                closedResult.textContent = '∞ (stable)';
+                closedResult.style.color = 'var(--accent-yellow)';
+                closedDetail.textContent = `BTC $Gain exactly matches pref growth. Balanced on a knife edge.`;
+            } else {
+                closedResult.textContent = yearsToAmaxClosed.toFixed(1) + ' years';
+                closedResult.style.color = 'var(--accent-red)';
+                closedDetail.textContent = `Until you hit A_max, relying only on BTC $Gain of ${state.gBtcPrice}%.`;
+            }
+
+            // Required CAGR if closed
+            document.getElementById('scenarioRequiredCagr_result').textContent = gSenior.toFixed(1) + '%';
+            document.getElementById('scenarioRequiredCagr_detail').textContent = `BTC price must grow at least as fast as pref growth (${gSenior.toFixed(1)}%) to keep leverage flat.`;
+
+            // Max g_pref at current conditions
+            document.getElementById('scenarioMaxGpref_result').textContent = gStackPercent.toFixed(1) + '%';
+            document.getElementById('scenarioMaxGpref_detail').textContent = `Max pref growth rate to maintain current leverage.`;
+
+            // ---- Reference Table ----
+            document.getElementById('ref_A0').textContent = state.A0.toFixed(2);
+            document.getElementById('ref_Amax').textContent = state.Amax.toFixed(2);
+            document.getElementById('ref_gBtcPrice').textContent = state.gBtcPrice + '%';
+            document.getElementById('ref_gBtcAcc').textContent = effectiveGBtcAcc + '%';
+            document.getElementById('ref_gStack').textContent = gStackPercent.toFixed(1) + '%';
+            document.getElementById('ref_gPref').textContent = state.gPref + '%';
+            document.getElementById('ref_debt').textContent = '$' + state.debtNotional.toFixed(1) + 'B';
+            document.getElementById('ref_cPref').textContent = state.cPref + '%';
+            document.getElementById('ref_mNav').textContent = state.mNav.toFixed(2) + 'x';
+        }
+
+        // ============================================
+        // EVENT LISTENERS
+        // ============================================
+        Object.keys(inputs).forEach(key => {
+            inputs[key].addEventListener('input', (e) => {
+                state[key] = parseFloat(e.target.value);
+                updateLiveDisplay(); // Recalc max g_pref with new assumptions
+                update();
+            });
+        });
+
+        // Debt checkbox listeners
+        Object.keys(debtCheckboxes).forEach(key => {
+            debtCheckboxes[key].addEventListener('change', () => {
+                updateLiveDisplay();
+                update();
+            });
+        });
+
+        // Initialize - hide debt explanation by default (all boxes checked)
+        document.getElementById('debtExplanation').style.display = 'none';
+        update();
+
+        // ============================================
+        // LIVE DATA FETCHING
+        // ============================================
+        async function fetchLiveData() {
+            const btn = document.getElementById('fetchBtn');
+            const indicator = document.getElementById('liveIndicator');
+            const timestamp = document.getElementById('liveTimestamp');
+            
+            btn.disabled = true;
+            btn.textContent = '⏳ Loading...';
+            indicator.textContent = '🟡';
+            indicator.className = 'live-indicator';
+
+            try {
+                // Fetch both endpoints in parallel
+                const [btcKpisRes, mstrKpiRes] = await Promise.all([
+                    fetch('https://api.strategy.com/btc/bitcoinKpis'),
+                    fetch('https://api.strategy.com/btc/mstrKpiData')
+                ]);
+
+                const btcKpis = await btcKpisRes.json();
+                const mstrKpi = await mstrKpiRes.json();
+
+                // Parse data
+                const btcHoldings = parseInt(btcKpis.results.btcHoldings.replace(/,/g, ''));
+                const btcNavM = parseFloat(btcKpis.results.btcNavNumber); // in millions
+                const btcNavB = btcNavM / 1000; // convert to billions
+                const btcPrice = parseFloat(btcKpis.results.latestPrice);
+                liveData.btcPrice = btcPrice;
+
+                const mstr = mstrKpi[0];
+                const debtM = parseFloat(mstr.debt.replace(/,/g, '')); // in millions
+                const prefM = parseFloat(mstr.pref.replace(/,/g, '')); // in millions
+                const evM = parseFloat(mstr.entVal.replace(/,/g, '')); // Enterprise Value in millions
+
+                const debtB = debtM / 1000;
+                const prefB = prefM / 1000;
+                const evB = evM / 1000;
+
+                // Store in liveData for checkbox recalculations
+                liveData.btcNavB = btcNavB;
+                liveData.prefB = prefB;
+                liveData.debtB = debtB;
+                liveData.evB = evB;
+
+                // Calculate amplification and mNAV (EV-based per Strategy's methodology)
+                // EV = Market Cap + Debt + Pref
+                // mNAV = EV / BTC NAV
+                const amplification = (prefB + debtB) / btcNavB;
+                const mNav = evB / btcNavB;
+                liveData.mNav = mNav;
+
+                // Calculate max g_pref to keep amplification flat
+                // Given BTC CAGR and accumulation assumptions from sliders
+                const gBtcPrice = state.gBtcPrice / 100;
+                const gBtcAcc = mNav >= 1 ? state.gBtcAcc / 100 : 0; // Only if equity open
+                const gStack = (1 + gBtcPrice) * (1 + gBtcAcc) - 1;
+                const debtToPref = debtB / prefB;
+                const maxGpref = gStack * (1 + debtToPref);
+
+                // ATH calculation
+                const athDistance = ((BTC_ATH - btcPrice) / btcPrice) * 100;
+                const athGain = ((BTC_ATH / btcPrice) - 1) * 100;
+                
+                // Update ATH callout
+                document.getElementById('athDistance').textContent = athDistance.toFixed(0) + '%';
+                document.getElementById('athGain').textContent = athGain.toFixed(0) + '%';
+                document.getElementById('athPrice').textContent = (BTC_ATH / 1000).toFixed(0) + 'K';
+
+                // Update display
+                document.getElementById('liveBtcPrice').textContent = '$' + btcPrice.toLocaleString();
+                document.getElementById('liveBtcHoldings').textContent = btcHoldings.toLocaleString();
+                document.getElementById('liveBtcNav').textContent = '$' + btcNavB.toFixed(1) + 'B';
+                document.getElementById('livePref').textContent = '$' + prefB.toFixed(2) + 'B';
+                document.getElementById('liveDebt').textContent = '$' + debtB.toFixed(2) + 'B';
+                document.getElementById('liveAmplification').textContent = (amplification * 100).toFixed(1) + '%';
+                document.getElementById('livePrefBackfill').textContent = '+$0.0B';
+                document.getElementById('liveMnav').textContent = mNav.toFixed(2) + 'x';
+                document.getElementById('debtOutstanding').textContent = '$' + debtB.toFixed(2) + 'B';
+                
+                // Update mad libs result
+                document.getElementById('resultMaxGpref').textContent = (maxGpref * 100).toFixed(0) + '%';
+                const prefDollarsNew = prefB * maxGpref;
+                document.getElementById('resultPrefDollars').textContent = '$' + prefDollarsNew.toFixed(1) + 'B';
+
+                // Update model sliders with live data
+                state.A0 = amplification;
+                inputs.A0.value = amplification;
+                displays.A0.textContent = amplification.toFixed(2);
+
+                state.mNav = mNav;
+                inputs.mNav.value = mNav;
+                displays.mNav.textContent = mNav.toFixed(2) + 'x';
+
+                // Update debt checkboxes to reflect live data
+                // (Keep as manual toggles for scenario modeling)
+
+                // Update UI
+                indicator.textContent = '🟢';
+                indicator.className = 'live-indicator connected';
+                timestamp.textContent = `Last updated: ${new Date().toLocaleTimeString()} — Data from strategy.com`;
+                
+                update();
+
+            } catch (error) {
+                console.error('Failed to fetch live data:', error);
+                indicator.textContent = '🔴';
+                indicator.className = 'live-indicator';
+                timestamp.textContent = `Error: ${error.message}. Try again.`;
+            } finally {
+                btn.disabled = false;
+                btn.textContent = '↻ Refresh';
+            }
+        }
+
+        // Auto-fetch on page load
+        fetchLiveData();
+
+        // Check all debt boxes by default
+        Object.keys(debtCheckboxes).forEach(key => {
+            debtCheckboxes[key].checked = true;
+        });
+
+        // ============================================
+        // MAD LIBS CONTROLS
+        // ============================================
+        const mlBtcCagr = document.getElementById('mlBtcCagr');
+        const mlBtcGain = document.getElementById('mlBtcGain');
+        const mlBtcCagrVal = document.getElementById('mlBtcCagr_val');
+        const mlBtcGainVal = document.getElementById('mlBtcGain_val');
+
+        function updateMadLibs() {
+            const cagr = parseFloat(mlBtcCagr.value);
+            const gain = parseFloat(mlBtcGain.value);
+            
+            mlBtcCagrVal.textContent = cagr + '%';
+            mlBtcGainVal.textContent = gain + '%';
+            
+            // Update state for other calculations
+            state.gBtcPrice = cagr;
+            state.gBtcAcc = gain;
+            
+            // Calculate g_stack
+            const gStack = (1 + cagr/100) * (1 + gain/100) - 1;
+            
+            // Get current debt from checkboxes
+            const checkedDebt = calcDebtNotional();
+            const totalDebtB = liveData.debtB || 8.21;
+            const retiredDebt = totalDebtB - checkedDebt;
+            const prefB = liveData.prefB || 8.06;
+            const totalSenior = prefB + totalDebtB; // Original senior capital
+            
+            // Hurdle = growth needed + backfill for retired debt
+            // Dollar amount = g_stack × (P + D_original) + retired_debt
+            // This is the total prefs that must be ISSUED this year
+            const dollarHurdle = gStack * totalSenior + retiredDebt;
+            
+            // As a percentage of current pref notional
+            const maxGpref = dollarHurdle / prefB;
+            
+            // Update result display - dollar hurdle is primary
+            document.getElementById('resultPrefDollars').textContent = '$' + dollarHurdle.toFixed(1) + 'B';
+            document.getElementById('resultMaxGpref').textContent = (maxGpref * 100).toFixed(0) + '%';
+            
+            // Update issuance runway
+            updateRunway(dollarHurdle);
+            
+            // Update insight
+            const insightEl = document.getElementById('insightText');
+            const backfillNote = retiredDebt > 0 ? ` Includes $${retiredDebt.toFixed(1)}B to backfill retired debt.` : '';
+            
+            if (dollarHurdle > 15) {
+                insightEl.innerHTML = `<strong>The hurdle is massive.</strong> $${dollarHurdle.toFixed(1)}B of pref issuance needed annually to maintain amplification.${backfillNote} Current pref issuance pace is nowhere near this.`;
+            } else if (dollarHurdle > 8) {
+                insightEl.innerHTML = `<strong>Significant capacity.</strong> $${dollarHurdle.toFixed(1)}B of prefs can be issued annually without increasing leverage.${backfillNote}`;
+            } else {
+                insightEl.innerHTML = `<strong>Tighter margins.</strong> Only $${dollarHurdle.toFixed(1)}B of pref capacity at these growth assumptions.${backfillNote}`;
+            }
+            
+            // Also update live display if data exists
+            if (liveData.btcNavB > 0) {
+                const newAmp = (prefB + checkedDebt) / liveData.btcNavB;
+                document.getElementById('liveAmplification').textContent = (newAmp * 100).toFixed(1) + '%';
+            }
+        }
+
+        mlBtcCagr.addEventListener('input', updateMadLibs);
+        mlBtcGain.addEventListener('input', updateMadLibs);
+
+        // ATM capacity (as of late 2025)
+        const atmCapacity = {
+            STRK: 20.3,
+            STRF: 1.7,
+            STRD: 4.1,
+            STRC: 4.0
+        };
+        const totalAtmCapacity = Object.values(atmCapacity).reduce((a, b) => a + b, 0);
+
+        // Check if any debt checkbox is unchecked
+        function isAnyDebtRetired() {
+            return Object.values(debtCheckboxes).some(cb => !cb.checked);
+        }
+
+        // Update debt display when checkboxes change
+        Object.keys(debtCheckboxes).forEach(key => {
+            debtCheckboxes[key].addEventListener('change', () => {
+                const checkedDebt = calcDebtNotional();
+                const fullDebt = Object.values(debtBonds).reduce((a, b) => a + b, 0);
+                const retiredDebt = fullDebt - checkedDebt;
+                const prefB = liveData.prefB || 8.06;
+                const btcNavB = liveData.btcNavB || 66.3;
+                
+                // Amplification calculations (use checkbox totals for consistency)
+                const ampBefore = (prefB + fullDebt) / btcNavB;
+                const ampAfter = (prefB + checkedDebt) / btcNavB;
+                const ampDrop = ampBefore - ampAfter;
+                
+                document.getElementById('debtOutstanding').textContent = '$' + checkedDebt.toFixed(2) + 'B';
+                document.getElementById('livePrefBackfill').textContent = '+$' + retiredDebt.toFixed(1) + 'B';
+                document.getElementById('liveDebt').textContent = '$' + checkedDebt.toFixed(2) + 'B';
+                
+                // Update debt explanation - only show when a checkbox is unchecked
+                const explEl = document.getElementById('debtExplanation');
+                if (isAnyDebtRetired()) {
+                    explEl.style.display = 'block';
+                    explEl.innerHTML = `
+                        <strong>Amplification impact:</strong><br>
+                        Before: <code>(${prefB.toFixed(1)}B pref + ${fullDebt.toFixed(1)}B debt) ÷ ${btcNavB.toFixed(1)}B NAV = ${ampBefore.toFixed(3)}x</code><br>
+                        After: <code>(${prefB.toFixed(1)}B pref + ${checkedDebt.toFixed(1)}B debt) ÷ ${btcNavB.toFixed(1)}B NAV = ${ampAfter.toFixed(3)}x</code><br>
+                        <span style="color: var(--accent-green)">↓ ${(ampDrop * 100).toFixed(1)}% drop in amplification.</span> Must issue +$${retiredDebt.toFixed(1)}B prefs to restore.
+                    `;
+                } else {
+                    explEl.style.display = 'none';
+                }
+                
+                updateMadLibs();
+                updateLiveDisplay();
+                update();
+            });
+        });
+
+        // Update issuance runway
+        function updateRunway(dollarHurdle) {
+            const yearsUntilVote = totalAtmCapacity / dollarHurdle;
+            document.getElementById('totalAtmCapacity').textContent = '$' + totalAtmCapacity.toFixed(1) + 'B';
+            document.getElementById('runwayHurdle').textContent = '$' + dollarHurdle.toFixed(1) + 'B/yr';
+            document.getElementById('yearsUntilVote').textContent = '~' + yearsUntilVote.toFixed(1) + ' yrs';
+        }
+
+        // Initialize mad libs
+        setTimeout(updateMadLibs, 1000);
+    </script>
+</body>
+</html>
